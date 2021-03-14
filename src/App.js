@@ -7,24 +7,35 @@ import ContactList from "./components/ContactList";
 
 class App extends Component {
   state = {
-    contacts: [
-      { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
-      { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
-      { id: "id-3", name: "Eden Clements", number: "645-17-79" },
-      { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
-    ],
+    contacts: [],
     filter: "",
   };
 
+  componentDidMount() {
+    const localContacts = JSON.parse(localStorage.getItem("contacts"));
+
+    if (localContacts) {
+      this.setState({ contacts: [...localContacts] });
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    const prevContacts = prevState.contacts;
+    const nextContacts = this.state.contacts;
+
+    if (prevContacts !== nextContacts) {
+      console.log("обновилось поле ");
+      localStorage.setItem("contacts", JSON.stringify(nextContacts));
+    }
+  }
+
   addContact = (name, number) => {
+    const { contacts } = this.state;
     const contact = {
       id: shortid.generate(),
       name,
       number,
     };
-    const alreadyContacts = this.state.contacts.find(
-      (item) => item.name === name
-    );
+    const alreadyContacts = contacts.find((item) => item.name === name);
     if (alreadyContacts) {
       alert(`${name} is already in contacts`);
       return;
@@ -35,8 +46,8 @@ class App extends Component {
   };
 
   deleteContact = (contactId) => {
-    this.setState((prevState) => ({
-      contacts: prevState.contacts.filter((item) => item.id !== contactId),
+    this.setState(({ contacts }) => ({
+      contacts: contacts.filter((item) => item.id !== contactId),
     }));
   };
 
